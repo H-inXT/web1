@@ -1,0 +1,467 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../css/mui.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<script src="../js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init()
+		</script>
+
+
+
+		<header id="pay_jPanel1" class="mui-bar mui-bar-nav">
+			<span onclick="javascript:window.location.href='./main.html'" class="mui-icon mui-icon-arrowleft"></span>
+			<h1 id="pay_jLabel1" class="mui-title">实时曲线</h1>
+			<!--<span id="pay_jIconfont2" class="mui-icon mui-icon-bars mui-pull-right"></span>-->
+		</header>
+
+
+
+		<div id="pay_jPanel2" class="mui-content" style="padding-left: 20px;padding-right: 20px;">
+
+			<div class="mui-content" style="margin-top: 40px;">
+
+
+				<div class="mui-row">
+
+					<div style="text-align:center; margin: 10px 15px;padding: 5px 10px;  font-family:黑体; font-weight: 0;">
+						温度
+					</div>
+
+					<div class="mui-col-sm-12 mui-col-xs-12" style="border: solid #8085E9;margin-bottom: 20px;">
+						<div id="container_wendu1" style="min-width:40px;height:200px"></div>
+					</div>
+
+				</div>
+
+
+				<div class="mui-row" style="margin-top: 50px;">
+
+
+					<div style="text-align:center; margin: 10px 15px;padding: 5px 10px;  font-family:黑体; font-weight: 0;">
+						湿度
+					</div>
+
+					<div class="mui-col-sm-12 mui-col-xs-12" style="border: solid #8085E9;margin-bottom: 20px;">
+						<div id="container_shidu1" style="min-width:40px;height:200px"></div>
+					</div>
+
+
+				</div>
+
+
+
+				<div class="mui-row" style="margin-top: 50px;">
+
+
+					<div style="text-align:center; margin: 10px 15px;padding: 5px 10px;  font-family:黑体; font-weight: 0;">
+						烟雾
+					</div>
+
+					<div class="mui-col-sm-12 mui-col-xs-12" style="border: solid #8085E9;margin-bottom: 20px;">
+						<div id="container_yanwu1" style="min-width:40px;height:200px"></div>
+					</div>
+
+
+				</div>
+
+				<div class="mui-row" style="margin-top: 50px;">
+				
+				
+					<div style="text-align:center; margin: 10px 15px;padding: 5px 10px;  font-family:黑体; font-weight: 0;">
+						可燃气体
+					</div>
+				
+					<div class="mui-col-sm-12 mui-col-xs-12" style="border: solid #8085E9;margin-bottom: 20px;">
+						<div id="container_ranqi1" style="min-width:40px;height:200px"></div>
+					</div>
+				
+				
+				</div>
+
+
+
+
+
+
+			</div>
+
+
+
+		</div>
+
+
+
+
+
+	</body>
+
+
+	<script src="../js/jquery-3.4.1.min.js"></script>
+	<script src="../js/highcharts/highcharts.js"></script>
+	<script src="../js/highcharts/exporting.js"></script>
+	<script src="../js/highcharts/highcharts-zh_CN.js"></script>
+	<script src="../js/highcharts/highcharts-more.js"></script>
+	<script src="../js/project_config.js"></script>
+
+	<script>
+		var show_shidu1 = 0;
+		var show_wendu1 = 0;
+		var show_yanwu1 = 0;
+		var show_ranqi1 = 0;
+
+		function get_info() {
+			$.ajax({
+				type: 'get',
+				dataType: "json",
+				url: cfg_sensor_dynamic_url,
+				success: function(data) {
+
+					for (var i = 0; i < data.length; i++) {
+
+						if (data[i].sensor_type == "shidu1") {
+							show_shidu1 = parseInt(data[i].sensor_value);
+						} else if (data[i].sensor_type == "wendu1") {
+							show_wendu1 = parseInt(data[i].sensor_value);
+						} else if (data[i].sensor_type == "yanwu1") {
+							show_yanwu1 = parseInt(data[i].sensor_value);
+						} else if (data[i].sensor_type == "ranqi1") {
+							show_ranqi1 = parseInt(data[i].sensor_value);
+						}
+
+
+
+
+					}
+
+
+				},
+			});
+		}
+
+
+
+		setInterval(function() {
+			get_info();
+		}, 1000);
+
+		Highcharts.setOptions({
+			global: {
+				useUTC: false
+			}
+		});
+
+		function activeLastPointToolip(chart) {
+			var points = chart.series[0].points;
+			chart.tooltip.refresh(points[points.length - 1]);
+		}
+
+		$('#container_wendu1').highcharts({
+			chart: {
+				type: 'spline',
+				animation: Highcharts.svg, // don't animate in old IE
+				marginRight: 10,
+				events: {
+					load: function() {
+						// set up the updating of the chart each second
+						var series = this.series[0],
+							chart = this;
+
+						setInterval(function() {
+							var x = (new Date()).getTime(); // current time
+							y = Number(show_wendu1); //<===================================
+							series.addPoint([x, y], true, true);
+							activeLastPointToolip(chart)
+						}, dynamic_line_request_interval);
+					}
+				}
+			},
+			title: {
+				text: ' '
+			},
+			xAxis: {
+				type: 'datetime',
+				tickPixelInterval: 150
+			},
+			yAxis: {
+				title: {
+					text: '值'
+				},
+				plotLines: [{
+					value: 0,
+					width: 1,
+					color: '#00ff00'
+				}]
+			},
+			tooltip: {
+				formatter: function() {
+					return '<b>' + this.series.name + '</b><br/>' +
+						Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+						Highcharts.numberFormat(this.y, 2);
+				}
+			},
+			legend: {
+				enabled: false
+			},
+			exporting: {
+				enabled: false
+			},
+			series: [{
+				name: ' ',
+				data: (function() {
+					// generate an array of random data
+					var data = [],
+						time = (new Date()).getTime(),
+						i;
+					for (i = -19; i <= 0; i += 1) {
+						data.push({
+							x: time + i * 1000,
+							y: 0
+							// y: Math.random() * 100
+						});
+					}
+					return data;
+				}())
+			}]
+		}, function(c) {
+			activeLastPointToolip(c)
+		});
+
+		$('#container_shidu1').highcharts({
+			chart: {
+				type: 'spline',
+				animation: Highcharts.svg, // don't animate in old IE
+				marginRight: 10,
+				events: {
+					load: function() {
+						// set up the updating of the chart each second
+						var series = this.series[0],
+							chart = this;
+
+						setInterval(function() {
+							var x = (new Date()).getTime(); // current time
+							y = Number(show_shidu1); //<===================================
+							series.addPoint([x, y], true, true);
+							activeLastPointToolip(chart)
+						}, dynamic_line_request_interval);
+					}
+				}
+			},
+			title: {
+				text: ' '
+			},
+			xAxis: {
+				type: 'datetime',
+				tickPixelInterval: 150
+			},
+			yAxis: {
+				title: {
+					text: '值'
+				},
+				plotLines: [{
+					value: 0,
+					width: 1,
+					color: '#00ff00'
+				}]
+			},
+			tooltip: {
+				formatter: function() {
+					return '<b>' + this.series.name + '</b><br/>' +
+						Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+						Highcharts.numberFormat(this.y, 2);
+				}
+			},
+			legend: {
+				enabled: false
+			},
+			exporting: {
+				enabled: false
+			},
+			series: [{
+				name: ' ',
+				data: (function() {
+					// generate an array of random data
+					var data = [],
+						time = (new Date()).getTime(),
+						i;
+					for (i = -19; i <= 0; i += 1) {
+						data.push({
+							x: time + i * 1000,
+							y: 0
+						});
+					}
+					return data;
+				}())
+			}]
+		}, function(c) {
+			activeLastPointToolip(c)
+		});
+
+
+
+
+
+		$('#container_yanwu1').highcharts({
+			chart: {
+				type: 'spline',
+				animation: Highcharts.svg, // don't animate in old IE
+				marginRight: 10,
+				events: {
+					load: function() {
+						// set up the updating of the chart each second
+						var series = this.series[0],
+							chart = this;
+
+						setInterval(function() {
+							var x = (new Date()).getTime(); // current time
+							y = Number(show_yanwu1); //<===================================
+							series.addPoint([x, y], true, true);
+							activeLastPointToolip(chart)
+						}, dynamic_line_request_interval);
+					}
+				}
+			},
+			title: {
+				text: ' '
+			},
+			xAxis: {
+				type: 'datetime',
+				tickPixelInterval: 150
+			},
+			yAxis: {
+				title: {
+					text: '值'
+				},
+				plotLines: [{
+					value: 0,
+					width: 1,
+					color: '#00ff00'
+				}]
+			},
+			tooltip: {
+				formatter: function() {
+					return '<b>' + this.series.name + '</b><br/>' +
+						Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+						Highcharts.numberFormat(this.y, 2);
+				}
+			},
+			legend: {
+				enabled: false
+			},
+			exporting: {
+				enabled: false
+			},
+			series: [{
+				name: ' ',
+				data: (function() {
+					// generate an array of random data
+					var data = [],
+						time = (new Date()).getTime(),
+						i;
+					for (i = -19; i <= 0; i += 1) {
+						data.push({
+							x: time + i * 1000,
+							y: 0
+						});
+					}
+					return data;
+				}())
+			}]
+		}, function(c) {
+			activeLastPointToolip(c)
+		});
+
+		$('#container_ranqi1').highcharts({
+			chart: {
+				type: 'spline',
+				animation: Highcharts.svg, // don't animate in old IE
+				marginRight: 10,
+				events: {
+					load: function() {
+						// set up the updating of the chart each second
+						var series = this.series[0],
+							chart = this;
+		
+						setInterval(function() {
+							var x = (new Date()).getTime(); // current time
+							y = Number(show_ranqi1); //<===================================
+							series.addPoint([x, y], true, true);
+							activeLastPointToolip(chart)
+						}, dynamic_line_request_interval);
+					}
+				}
+			},
+			title: {
+				text: ' '
+			},
+			xAxis: {
+				type: 'datetime',
+				tickPixelInterval: 150
+			},
+			yAxis: {
+				title: {
+					text: '值'
+				},
+				plotLines: [{
+					value: 0,
+					width: 1,
+					color: '#00ff00'
+				}]
+			},
+			tooltip: {
+				formatter: function() {
+					return '<b>' + this.series.name + '</b><br/>' +
+						Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+						Highcharts.numberFormat(this.y, 2);
+				}
+			},
+			legend: {
+				enabled: false
+			},
+			exporting: {
+				enabled: false
+			},
+			series: [{
+				name: ' ',
+				data: (function() {
+					// generate an array of random data
+					var data = [],
+						time = (new Date()).getTime(),
+						i;
+					for (i = -19; i <= 0; i += 1) {
+						data.push({
+							x: time + i * 1000,
+							y: 0
+						});
+					}
+					return data;
+				}())
+			}]
+		}, function(c) {
+			activeLastPointToolip(c)
+		});
+		
+
+
+
+
+
+
+
+
+
+
+		//////////////////////////////////////////
+	</script>
+
+
+
+
+</html>

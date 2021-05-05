@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+
+		<link href="../css/mui.css" rel="stylesheet" />
+
+		<link rel="stylesheet" href="../css/bootstrap.css">
+		<script src="../js/jquery-3.4.1.min.js"></script>
+		<script src="../js/bootstrap.js"></script>
+
+
+	</head>
+
+
+
+
+	<body>
+
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">当前用户名称：<span id="label_user_name"></span> </h1>
+			<span onclick="javascript:window.location.href='login.html'" class="mui-icon mui-icon-locked mui-pull-right"></span>
+		</header>
+
+		<div style=" margin-top: 80px;"></div>
+
+		<div  class="mui-row">
+
+			<div id="main_account">
+				<div class="container">
+					<div>
+						
+						<p><a class="btn btn-primary" role="button" onclick="javascript:window.location.href='./user_manage.html'">
+								用户管理</a>
+						</p>
+						
+					</div>
+				</div>
+			</div>
+
+
+			<div id="main_sensor_monitor">
+				<div class="container">
+					<div>
+						<p><a class="btn btn-primary" role="button" onclick="javascript:window.location.href='./sensor_monitor.html'">
+								设备监控</a>
+						</p>
+					</div>
+				</div>
+
+			</div>
+			
+			
+			
+			<div id="main_history">
+				<div class="container">
+					<div>
+					 
+						<p><a class="btn btn-primary" role="button" onclick="javascript:window.location.href='./sensor_history.html'">
+								历史数据</a>
+						</p>
+						
+					</div>
+				</div>
+			</div>
+
+
+			<div id="main_dynamic">
+				<div class="container">
+					<div>
+					 
+						<p><a class="btn btn-primary" role="button" onclick="javascript:window.location.href='./sensor_dynamic.html'">
+								动态曲线</a>
+						</p>
+					</div>
+				</div>
+
+			</div>
+
+
+
+
+
+		</div>
+	</body>
+	
+	<script src="../js/jquery-3.4.1.min.js"></script>
+	<script>
+		
+		var user_name = localStorage.getItem("user_name");
+		var user_note = localStorage.getItem("user_note");
+		console.log(user_name + "    " + user_note);
+		
+		$("#label_user_name").html(user_name);
+		
+		
+		// if(user_note == "管理员")
+		// {
+		// 	$("#main_account").show();
+		// 	$("#main_sensor_monitor").show();
+		// 	$("#main_history").show();
+		// 	$("#main_dynamic").show();
+		// }
+		// else{
+		// 	$("#main_account").hide();
+		// 	$("#main_sensor_monitor").hide();
+		// 	$("#main_history").hide();
+		// 	$("#main_dynamic").hide();
+		// }
+		
+		
+		
+	</script>
+	
+	
+	
+</html>
